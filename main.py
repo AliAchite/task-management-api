@@ -3,17 +3,13 @@ from models import Task
 from database import get_connection, init_db
 
 app = FastAPI()
-
-# تشغيل دالة إنشاء الجدول عند بدء تشغيل التطبيق
 init_db()
-
-
 def row_to_task(row) -> Task:
     return Task(
         id=row["id"],
         title=row["title"],
         priority=row["priority"],
-        completed=bool(row["completed"]),  # تحويل 0/1 إلى False/True
+        completed=bool(row["completed"]),  
     )
 
 
@@ -27,7 +23,7 @@ def create_task(task: Task):
     conn = get_connection()
     cursor = conn.cursor()
 
-    # التأكد من عدم تكرار الـ id
+
     cursor.execute("SELECT id FROM tasks WHERE id = ?", (task.id,))
     if cursor.fetchone() is not None:
         conn.close()
@@ -63,7 +59,7 @@ def get_tasks(completed: bool | None = None, priority: int | None = None):
     rows = cursor.fetchall()
     conn.close()
 
-    tasks_list = [row_to_task(row) for row in rows]#هون روو عم تمر على كل سطر ب رووس وعم تعطيها للفانكشن مشان يرتبها مثل التاسك
+    tasks_list = [row_to_task(row) for row in rows]
     return {
         "total": len(tasks_list),
         "tasks": tasks_list,
@@ -97,7 +93,7 @@ def update_task(task_id: int, updated_task: Task):
         (updated_task.title, updated_task.priority, int(updated_task.completed), task_id),
     )
     conn.commit()
-    affected_rows = cursor.rowcount#بترجع رقم صحيح يمثل عدد الصفوف اللي نفّذ عليها آخر أمر
+    affected_rows = cursor.rowcount
     conn.close()
 
     if affected_rows == 0:
